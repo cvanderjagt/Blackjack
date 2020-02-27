@@ -1,13 +1,16 @@
 using System;
 
-class BaseCard
+public class BaseCard
+{
+    public char Suit { get; private set; }
+    public char Value { get; private set; }
+    public BaseCard(char suit, char value)
     {
-        public char Suit
-        { get; set; }
-        public char Value
-        { get; set; }
-        public String GetCard()
-        {
-            return String.Concat(Suit, Value);
-        }
+        Suit = suit;
+        Value = value;
     }
+    public String GetCard()
+    {
+        return String.Concat(Suit, Value);
+    }
+}

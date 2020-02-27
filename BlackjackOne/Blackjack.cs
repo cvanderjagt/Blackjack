@@ -1,57 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
-class Blackjack
+public class Blackjack
 {
-    readonly Hand playerHand = new Hand();
-    readonly Hand computerHand = new Hand();
-    readonly Deck deck = new Deck();
-    void Deal()
+    private readonly Hand playerHand = new Hand();
+    private readonly Hand computerHand = new Hand();
+    private readonly Deck deck = new Deck();
+    private const int drawLimit = 17;
+    public void Deal()
     {
-            
         for (int i = 0; i < 2; i++)
         {
             playerHand.Draw(deck);
             computerHand.Draw(deck);
         }
     }
-    void PrintHands(bool showDealer)
+    private void PrintHands(bool showDealer)
     {
         List<BaseCard> computerCards = computerHand.cards;
         List<BaseCard> playerCards = playerHand.cards;
-        Console.Write("Dealer's Hand:");
+        StringBuilder hands = new StringBuilder("Dealer's Hand:", 200);
+        int i = 0;
+        if (!showDealer)
+        {
+            i = 1;
+            hands.Append(" **");
+        }
+        for (; i < computerCards.Count(); i++)
+        {
+            hands.AppendFormat(" {0}", computerCards[i].GetCard());
+        }
         if (showDealer)
         {
-            for (int i = 0; i < computerCards.Count(); i++)
-            {
-                Console.Write(" " + computerCards[i].GetCard());
-            }
-            Console.Write("\nTotal: " + computerHand.CardValue + "");
+            hands.AppendFormat("\nTotal: {0}", computerHand.CardValue);
         }
-        else
+        hands.Append("\n\nYour Hand:");
+        for (int j = 0; j < playerCards.Count(); j++)
         {
-            Console.Write(" **");
-            for (int i = 1; i < computerCards.Count(); i++)
-            {
-                Console.Write(" " + computerCards[i].GetCard());
-            }
+            hands.AppendFormat(" {0}", playerCards[j].GetCard());
         }
-        Console.Write("\n\nYour Hand:");
-        for (int i = 0; i < playerCards.Count(); i++)
-        {
-            Console.Write(" " + playerCards[i].GetCard());
-        }
-        Console.WriteLine("\nTotal: " + playerHand.CardValue + "\n\n");
+        hands.AppendFormat("\nTotal: {0}\n\n", playerHand.CardValue);
+        Console.WriteLine(hands.ToString());
     }
-    void ComputerTurn()
+    private void ComputerTurn()
     {
-        if (computerHand.CardValue >= playerHand.CardValue)
-        {
-            Console.WriteLine("You lose");
-            return;
-        }
-        while (computerHand.CardValue < 17)
+        while (computerHand.CardValue < drawLimit && computerHand.CardValue < playerHand.CardValue)
         {
             computerHand.Draw(deck);
         }
@@ -65,9 +60,36 @@ class Blackjack
             Console.WriteLine("You lose");
         }
     }
-    void PlayLoop()
+    private bool PlayerTurn()
     {
-        while (true)
+        string selection;
+        bool continueLoop = true;
+        Console.WriteLine("1.) Stand");
+        Console.WriteLine("2.) Hit");
+        do
+        {
+            selection = Console.ReadLine();
+            Console.WriteLine();
+            switch (selection)
+            {
+                case "1":
+                    ComputerTurn();
+                    continueLoop = false;
+                    break;
+                case "2":
+                    playerHand.Draw(deck);
+                    break;
+                default:
+                    Console.WriteLine("Invalid Selection");
+                    break;
+            }
+        } while (selection != "1" && selection != "2");
+        return continueLoop;
+    }
+    public void PlayLoop()
+    {
+        bool continueLoop = true;
+        while (continueLoop)
         {
             PrintHands(false);
             if (playerHand.CardValue == 21 && computerHand.CardValue == 21)
@@ -85,34 +107,8 @@ class Blackjack
                 Console.WriteLine("You win");
                 return;
             };
-            string selection;
-            Console.WriteLine("1.) Stand");
-            Console.WriteLine("2.) Hit");
-            do
-            {
-                selection = Console.ReadLine();
-                Console.WriteLine();
-                switch (selection)
-                {
-                    case "1":
-                        ComputerTurn();
-                        return;
-                    case "2":
-                        playerHand.Draw(deck);
-                        break;
-                    default:
-                        Console.WriteLine("Invalid Selection");
-                        break;
-                }
-            } while (selection != "1" && selection != "2");
+            continueLoop = PlayerTurn();
         }
 
-    }
-    static void Main()
-    {
-        Blackjack blkjk = new Blackjack();
-        blkjk.Deal();
-        blkjk.PlayLoop();
-        Console.ReadLine();
     }
 }

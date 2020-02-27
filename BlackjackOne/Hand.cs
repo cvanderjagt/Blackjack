@@ -2,19 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-class Hand
+public class Hand
 {
-    public List<BaseCard> cards = new List<BaseCard>();
     private int softAce = 0;
-    readonly Random rand = new Random();
+    private readonly Random rand = new Random();
     public int CardValue { get; private set; } = 0;
+    public List<BaseCard> cards { get; private set; } = new List<BaseCard>();
     public void Draw(Deck currentDeck)
     {
-        var availableCards = Enumerable.Range(0, 52).Where(i => !currentDeck.discards.Contains(i));
-        int index = rand.Next(0, 51 - currentDeck.discards.Count);
-        BaseCard selectedCard = currentDeck.cards[availableCards.ElementAt(index)];
+        int index = rand.Next(currentDeck.cards.Count);
+        BaseCard selectedCard = currentDeck.cards.ElementAt(index);
         cards.Add(selectedCard);
-        currentDeck.discards.Add(availableCards.ElementAt(index));
+        currentDeck.cards.Remove(currentDeck.cards.ElementAt(index));
         if ("JQK".Contains(selectedCard.Value))
         {
             CardValue += 10;
